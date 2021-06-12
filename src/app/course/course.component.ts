@@ -6,6 +6,8 @@ import {Course} from "../model/course";
 import {CoursesService} from "../services/courses.service";
 import {debounceTime, distinctUntilChanged, startWith, tap, timeout} from 'rxjs/operators';
 import {merge, fromEvent} from "rxjs";
+import {MatTableDataSource} from '@angular/material/table';
+import {LessonsDataSourse} from '../services/lessons.datasourse';
 
 
 @Component({
@@ -15,7 +17,14 @@ import {merge, fromEvent} from "rxjs";
 })
 export class CourseComponent implements OnInit, AfterViewInit {
 
-    course:Course;
+    course: Course;
+
+    dataSource: LessonsDataSourse;
+
+    displayedColumns = ['seqNo', 'description', 'duration'];
+
+    @ViewChild(MatPaginator)
+    paginator: MatPaginator;
 
     constructor(private route: ActivatedRoute,
                 private coursesService: CoursesService) {
@@ -24,12 +33,24 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
 
-        this.course = this.route.snapshot.data["course"];
-
+        this.course = this.route.snapshot.data['course'];
+        this.dataSource = new LessonsDataSourse(this.coursesService);
+        this.dataSource.loadLessons(this.course.id, '', 'asc',
+          0, 3);
     }
 
-    ngAfterViewInit() {
+  searchLessons(query) {
 
+  }
+
+    ngAfterViewInit() {
+      this.paginator.page.pipe(
+        startWith(null),
+        tap(() =>
+          this.dataSource.loadLessons(this.course.id, '', 'asc',
+            this.paginator.pageIndex, this.paginator.pageSize) )
+      )
+      .subscribe();
     }
 
 

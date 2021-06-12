@@ -18,6 +18,8 @@
 
 .duration-cell {
     text-align: center;
+  padding-left: 10px;
+  padding-right:  0px;
 }
 
 .duration-cell mat-icon {
